@@ -22,6 +22,9 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p downloads logs
 
+# Make entrypoint script executable
+RUN chmod +x docker-entrypoint.sh
+
 # Create non-root user for security
 RUN useradd -m -u 1000 botuser && \
     chown -R botuser:botuser /app
@@ -31,5 +34,5 @@ USER botuser
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import discord; print('OK')" || exit 1
 
-# Default command - use the run script for SSL handling
-CMD ["python", "run_slash_bot.py"]
+# Use the entrypoint script
+ENTRYPOINT ["./docker-entrypoint.sh"]
