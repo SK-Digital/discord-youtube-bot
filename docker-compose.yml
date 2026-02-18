@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   discord-youtube-bot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: discord-youtube-bot
     restart: unless-stopped
     environment:
@@ -14,11 +16,10 @@ services:
       - SOURCE_COMMIT=${SOURCE_COMMIT}
       - COOLIFY_URL=${COOLIFY_URL}
     volumes:
-      - ./downloads:/app/downloads
-      - ./logs:/app/logs
+      - discord_downloads:/app/downloads
+      - discord_logs:/app/logs
     networks:
-      - bot-network
-    # Optional: Add resource limits
+      - discord_network
     deploy:
       resources:
         limits:
@@ -28,6 +29,15 @@ services:
           memory: 256M
           cpus: "0.25"
 
+volumes:
+  discord_downloads:
+    driver: local
+  discord_logs:
+    driver: local
+
 networks:
-  bot-network:
+  discord_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
