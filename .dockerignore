@@ -1,0 +1,89 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment - CRITICAL FOR COOLIFY
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.*
+.env.example
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Parent directory .env file that causes Coolify conflicts
+**/.env
+
+# Logs
+logs/
+*.log
+
+# Downloads (will be mounted as volume)
+downloads/
+temp/
+tmp/
+
+# Documentation
+README.md
+*.md
+
+# License
+LICENSE
+
+# Test files
+test_*.py
+tests/
+
+# Development files
+scripts/
+.github/
+Makefile
+CONTRIBUTING.md
+GITHUB_SETUP.md
