@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  discord-youtube-bot:
+    build: .
+    container_name: discord-youtube-bot
+    restart: unless-stopped
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - PREFIX=${PREFIX:-!}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-10}
+      - TEST_GUILD_ID=${TEST_GUILD_ID}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./downloads:/app/downloads
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    networks:
+      - bot-network
+    # Optional: Add resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+
+networks:
+  bot-network:
+    driver: bridge
