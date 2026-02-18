@@ -1,0 +1,30 @@
+[phases.setup]
+nixPkgs = ["python311", "ffmpeg"]
+
+[phases.build]
+cmds = [
+    "python -m venv /opt/venv",
+    ". /opt/venv/bin/activate",
+    "pip install --upgrade pip",
+    "pip install -r requirements.txt"
+]
+
+[start]
+cmd = "python run_slash_bot.py"
+args = []
+
+[variables]
+PHASE_SETUP = "true"
+PHASE_BUILD = "true"
+PHASE_START = "true"
+
+[env]
+DISCORD_BOT_TOKEN = "{{ env.DISCORD_BOT_TOKEN }}"
+PREFIX = "{{ env.PREFIX || '!' }}"
+MAX_FILE_SIZE_MB = "{{ env.MAX_FILE_SIZE_MB || '10' }}"
+TEST_GUILD_ID = "{{ env.TEST_GUILD_ID }}"
+LOG_LEVEL = "{{ env.LOG_LEVEL || 'INFO' }}"
+PYTHONPATH = "/app"
+
+[[phases.setup]]
+nixPkgs = ["python311", "ffmpeg", "curl"]
