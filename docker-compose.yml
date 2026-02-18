@@ -11,10 +11,11 @@ services:
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-10}
       - TEST_GUILD_ID=${TEST_GUILD_ID}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - SOURCE_COMMIT=${SOURCE_COMMIT}
+      - COOLIFY_URL=${COOLIFY_URL}
     volumes:
       - ./downloads:/app/downloads
       - ./logs:/app/logs
-      - ./.env:/app/.env:ro
     networks:
       - bot-network
     # Optional: Add resource limits
