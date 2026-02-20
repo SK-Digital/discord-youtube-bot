@@ -24,9 +24,19 @@ export TEST_GUILD_ID=${TEST_GUILD_ID:-""}
 if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "🍪 Creating YouTube cookies file..."
     
+    # Remove outer quotes if present (Coolify adds quotes around env vars)
+    clean_cookies="$YOUTUBE_COOKIES"
+    if [[ "$clean_cookies" == \"*\" ]]; then
+        echo "🔧 Removing outer quotes from base64 string..."
+        clean_cookies="${clean_cookies:1:-1}"
+    fi
+    
     # Use base64 to avoid all escape sequence issues
     echo "🔧 Using base64 to decode cookies..."
-    echo "$YOUTUBE_COOKIES" | base64 -d > /tmp/cookies.txt
+    echo "$clean_cookies" | base64 -d > /tmp/cookies.txt 2>/dev/null || {
+        echo "❌ Base64 decode failed, creating minimal cookies file"
+        echo "# Netscape HTTP Cookie File" > /tmp/cookies.txt
+    }
     
     # Debug: Show what we actually wrote
     echo "🔍 File created, showing first 5 lines:"
