@@ -24,43 +24,9 @@ export TEST_GUILD_ID=${TEST_GUILD_ID:-""}
 if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "🍪 Creating YouTube cookies file..."
     
-    # Debug: Show what we received
-    echo "🔍 Raw YOUTUBE_COOKIES length: ${#YOUTUBE_COOKIES}"
-    echo "🔍 First 100 chars: ${YOUTUBE_COOKIES:0:100}"
-    echo "🔍 Last 10 chars: ${YOUTUBE_COOKIES: -10}"
-    
-    # Use Python to handle all the escaping properly
-    echo "🔧 Using Python to fix escape sequences..."
-    python3 -c "
-import os
-cookies = os.environ.get('YOUTUBE_COOKIES', '')
-if cookies:
-    print(f'🐍 Python received {len(cookies)} characters')
-    print(f'🐍 First 100 chars: {cookies[:100]}')
-    
-    # Remove outer quotes if present
-    if cookies.startswith('\"') and cookies.endswith('\"'):
-        print('🐍 Removing outer quotes')
-        cookies = cookies[1:-1]
-    
-    # Fix double escapes first: \\\" -> \" and \\n -> \n and \\t -> \t
-    cookies = cookies.replace('\\\\\"', '\"')
-    cookies = cookies.replace('\\\\n', '\n')
-    cookies = cookies.replace('\\\\t', '\t')
-    
-    # Now convert literal \n and \t to actual characters
-    cookies = cookies.replace('\\n', '\n')
-    cookies = cookies.replace('\\t', '\t')
-    
-    print(f'🐍 Final length: {len(cookies)}')
-    print(f'🐍 First 100 chars: {repr(cookies[:100])}')
-    
-    with open('/tmp/cookies.txt', 'w') as f:
-        f.write(cookies)
-    
-    print('🐍 File written successfully')
-    print(f'🐍 File lines: {len(cookies.splitlines())}')
-"
+    # Use base64 to avoid all escape sequence issues
+    echo "🔧 Using base64 to decode cookies..."
+    echo "$YOUTUBE_COOKIES" | base64 -d > /tmp/cookies.txt
     
     # Debug: Show what we actually wrote
     echo "🔍 File created, showing first 5 lines:"
