@@ -152,23 +152,42 @@ async def youtube_convert(ctx, youtube_url: str):
     """Convert YouTube video to 16-bit 44.1kHz WAV format"""
     
     if not await YouTubeConverter.validate_url(youtube_url):
-        await ctx.send("❌ Please provide a valid YouTube URL")
+        try:
+            await ctx.send("❌ Please provide a valid YouTube URL")
+        except:
+            pass  # Interaction expired
         return
     
-    if not ctx.channel.permissions_for(ctx.guild.me).attach_files:
-        await ctx.send("❌ I don't have permission to upload files in this channel!")
+    if hasattr(ctx, 'channel') and ctx.channel.permissions_for(ctx.guild.me).attach_files:
+        try:
+            processing_msg = await ctx.send("🔄 Processing your YouTube link...")
+        except discord.errors.NotFound:
+            # Interaction expired, can't send follow-up
+            return
+    else:
+        try:
+            await ctx.send("❌ I don't have permission to upload files in this channel!")
+        except:
+            pass
         return
-    
-    processing_msg = await ctx.send("🔄 Processing your YouTube link...")
     
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Created temporary directory: {temp_dir}")
             
-            await processing_msg.edit(content="⬇️ Downloading audio from YouTube...")
+            try:
+                await processing_msg.edit(content="⬇️ Downloading audio from YouTube...")
+            except discord.errors.NotFound:
+                # Interaction expired, can't update message
+                pass
+            
             title, audio_file = await YouTubeConverter.download_audio(youtube_url, temp_dir)
             
-            await processing_msg.edit(content="🔄 Converting to 16-bit 44.1kHz WAV...")
+            try:
+                await processing_msg.edit(content="🔄 Converting to 16-bit 44.1kHz WAV...")
+            except discord.errors.NotFound:
+                pass
+            
             wav_file = os.path.join(temp_dir, f"{title}.wav")
             await YouTubeConverter.convert_to_wav(audio_file, wav_file)
             
@@ -180,9 +199,16 @@ async def youtube_convert(ctx, youtube_url: str):
             
             if file_size_mb <= MAX_FILE_SIZE_MB:
                 # File is small enough for Discord upload
-                await processing_msg.edit(content="⬆️ Uploading to Discord...")
+                try:
+                    await processing_msg.edit(content="⬆️ Uploading to Discord...")
+                except discord.errors.NotFound:
+                    pass
                 
-                await processing_msg.delete()
+                try:
+                    await processing_msg.delete()
+                except:
+                    pass
+                
                 await ctx.send(
                     f"✅ **{title}** converted successfully!\n"
                     f"📊 Format: 16-bit 44.1kHz WAV\n"
@@ -191,13 +217,20 @@ async def youtube_convert(ctx, youtube_url: str):
                 )
             else:
                 # File is too large, upload to Filebin
-                await processing_msg.edit(content="☁️ Uploading to Filebin.net...")
+                try:
+                    await processing_msg.edit(content="☁️ Uploading to Filebin.net...")
+                except discord.errors.NotFound:
+                    pass
                 
                 try:
                     # Use Filebin.net hosting
                     download_link = await FilebinHosting.upload_file(wav_file)
                     
-                    await processing_msg.delete()
+                    try:
+                        await processing_msg.delete()
+                    except:
+                        pass
+                    
                     await ctx.send(
                         f"✅ **{title}** converted successfully!\n"
                         f"📊 Format: 16-bit 44.1kHz WAV\n"
@@ -208,16 +241,22 @@ async def youtube_convert(ctx, youtube_url: str):
                     )
                     
                 except Exception as hosting_error:
-                    await processing_msg.edit(
-                        content=f"❌ File too large ({file_size_mb:.1f}MB) and Filebin upload failed: {str(hosting_error)}"
-                    )
+                    try:
+                        await processing_msg.edit(
+                            content=f"❌ File too large ({file_size_mb:.1f}MB) and Filebin upload failed: {str(hosting_error)}"
+                        )
+                    except:
+                        await ctx.send(f"❌ File too large ({file_size_mb:.1f}MB) and Filebin upload failed: {str(hosting_error)}")
                     return
             
             logger.info(f"Successfully converted: {title} ({file_size_mb:.1f}MB)")
             
     except Exception as e:
         logger.error(f"Error in youtube_convert: {e}")
-        await processing_msg.edit(content=f"❌ Error: {str(e)}")
+        try:
+            await processing_msg.edit(content=f"❌ Error: {str(e)}")
+        except:
+            await ctx.send(f"❌ Error: {str(e)}")
 
 @bot.hybrid_command(name='help_youtube', description='Show help for YouTube converter')
 async def help_youtube(ctx):
