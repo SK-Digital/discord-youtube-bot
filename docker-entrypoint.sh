@@ -27,11 +27,14 @@ if [ -n "$YOUTUBE_COOKIES" ]; then
     # Debug: Show what we received
     echo "🔍 Raw YOUTUBE_COOKIES length: ${#YOUTUBE_COOKIES}"
     echo "🔍 First 100 chars: ${YOUTUBE_COOKIES:0:100}"
+    echo "🔍 Last 10 chars: ${YOUTUBE_COOKIES: -10}"
     
     # Remove outer quotes if present (Coolify saves variables with quotes around them)
     if [[ "$YOUTUBE_COOKIES" == \"*\" ]]; then
-        echo "� Removing outer quotes from Coolify variable..."
+        echo "🔧 Removing outer quotes from Coolify variable..."
         YOUTUBE_COOKIES="${YOUTUBE_COOKIES:1:-1}"
+        echo "🔍 After quote removal - length: ${#YOUTUBE_COOKIES}"
+        echo "🔍 After quote removal - first 100 chars: ${YOUTUBE_COOKIES:0:100}"
     fi
     
     # Now fix any remaining escape sequences: \" -> " and \n -> newline
@@ -41,21 +44,29 @@ if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "📝 Creating cookies file..."
     echo "$fixed_cookies" > /tmp/cookies.txt
     
+    # Debug: Show what we actually wrote
+    echo "🔍 File created, showing first 5 lines:"
+    head -5 /tmp/cookies.txt | sed 's/^/   /'
+    echo "🔍 File line count: $(wc -l < /tmp/cookies.txt)"
+    echo "🔍 File size: $(wc -c < /tmp/cookies.txt) bytes"
+    
     # Check if file looks correct
     if head -1 /tmp/cookies.txt | grep -q "Netscape HTTP Cookie File"; then
         echo "✅ Cookies file created successfully!"
     else
+        echo "❌ First line doesn't match expected format"
+        echo "🔍 Actual first line: '$(head -1 /tmp/cookies.txt)'"
         echo "❌ Creating minimal cookies file..."
         echo "# Netscape HTTP Cookie File" > /tmp/cookies.txt
+        echo "🔧 Created minimal cookies file as fallback"
     fi
     
     export YOUTUBE_COOKIES_FILE="/tmp/cookies.txt"
     echo "✅ YouTube cookies file created"
     
-    # Show first few lines to verify format
-    echo "📄 Cookies file preview:"
+    # Show final preview
+    echo "📄 Final cookies file preview:"
     head -5 /tmp/cookies.txt | sed 's/^/   /'
-    echo "📄 File size: $(wc -l < /tmp/cookies.txt) lines"
 else
     echo "⚠️  No YouTube cookies provided - some videos may be restricted"
     export YOUTUBE_COOKIES_FILE=""
