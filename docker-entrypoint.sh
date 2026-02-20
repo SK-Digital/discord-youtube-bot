@@ -20,6 +20,17 @@ export MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-10}
 export LOG_LEVEL=${LOG_LEVEL:-INFO}
 export TEST_GUILD_ID=${TEST_GUILD_ID:-""}
 
+# Handle YouTube cookies if provided
+if [ -n "$YOUTUBE_COOKIES" ]; then
+    echo "🍪 Creating YouTube cookies file..."
+    echo "$YOUTUBE_COOKIES" > /tmp/cookies.txt
+    export YOUTUBE_COOKIES_FILE="/tmp/cookies.txt"
+    echo "✅ YouTube cookies file created"
+else
+    echo "⚠️  No YouTube cookies provided - some videos may be restricted"
+    export YOUTUBE_COOKIES_FILE=""
+fi
+
 # Display configuration (without sensitive data)
 echo "✅ Configuration:"
 echo "  • PREFIX: $PREFIX"
@@ -27,6 +38,7 @@ echo "  • MAX_FILE_SIZE_MB: $MAX_FILE_SIZE_MB"
 echo "  • LOG_LEVEL: $LOG_LEVEL"
 echo "  • TEST_GUILD_ID: ${TEST_GUILD_ID:-"Not set"}"
 echo "  • DISCORD_BOT_TOKEN: [REDACTED]"
+echo "  • YOUTUBE_COOKIES: ${YOUTUBE_COOKIES:+[CONFIGURED]}"
 echo ""
 
 # Create necessary directories

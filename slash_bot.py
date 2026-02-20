@@ -32,6 +32,14 @@ YDL_OPTS = {
     'max_filesize': MAX_FILE_SIZE_MB * 1024 * 1024,
 }
 
+# Add cookies file if available
+cookies_file = os.getenv('YOUTUBE_COOKIES_FILE')
+if cookies_file and os.path.exists(cookies_file):
+    YDL_OPTS['cookiefile'] = cookies_file
+    logger.info(f"🍪 Using YouTube cookies file: {cookies_file}")
+else:
+    logger.info("⚠️  No YouTube cookies file available")
+
 # Initialize bot with minimal intents
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='!', intents=intents)
@@ -51,6 +59,11 @@ class YouTubeConverter:
         try:
             ydl_opts = YDL_OPTS.copy()
             ydl_opts['outtmpl'] = os.path.join(temp_dir, '%(title)s.%(ext)s')
+            
+            # Add cookies file if available
+            cookies_file = os.getenv('YOUTUBE_COOKIES_FILE')
+            if cookies_file and os.path.exists(cookies_file):
+                ydl_opts['cookiefile'] = cookies_file
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)

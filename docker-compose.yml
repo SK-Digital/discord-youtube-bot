@@ -14,6 +14,7 @@ services:
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-10}
       - TEST_GUILD_ID=${TEST_GUILD_ID}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - YOUTUBE_COOKIES=${YOUTUBE_COOKIES}
     volumes:
       - discord_downloads:/app/downloads
       - discord_logs:/app/logs
