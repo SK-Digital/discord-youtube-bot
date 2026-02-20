@@ -28,35 +28,25 @@ if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "🔍 Raw YOUTUBE_COOKIES length: ${#YOUTUBE_COOKIES}"
     echo "🔍 First 100 chars: ${YOUTUBE_COOKIES:0:100}"
     
-    # Fix Coolify's double escaping: \\" -> " and \\n -> \n
-    echo "� Fixing Coolify escape sequences..."
-    fixed_cookies=$(echo "$YOUTUBE_COOKIES" | sed 's/\\"/"/g' | sed 's/\\\\n/\\n/g')
+    # Remove outer quotes if present (Coolify saves variables with quotes around them)
+    if [[ "$YOUTUBE_COOKIES" == \"*\" ]]; then
+        echo "� Removing outer quotes from Coolify variable..."
+        YOUTUBE_COOKIES="${YOUTUBE_COOKIES:1:-1}"
+    fi
     
-    echo "📝 Creating cookies file with fixed content..."
-    printf '%b\n' "$fixed_cookies" > /tmp/cookies.txt
+    # Now fix any remaining escape sequences: \" -> " and \n -> newline
+    echo "🔧 Converting escape sequences..."
+    fixed_cookies=$(echo "$YOUTUBE_COOKIES" | sed 's/\\"/"/g' | sed 's/\\n/\n/g')
+    
+    echo "📝 Creating cookies file..."
+    echo "$fixed_cookies" > /tmp/cookies.txt
     
     # Check if file looks correct
     if head -1 /tmp/cookies.txt | grep -q "Netscape HTTP Cookie File"; then
         echo "✅ Cookies file created successfully!"
     else
-        echo "❌ Still not working, trying Python approach..."
-        python3 -c "
-import os
-cookies = os.environ.get('YOUTUBE_COOKIES', '')
-if cookies:
-    # Fix double escaping: \\" -> " and \\n -> \n
-    cookies = cookies.replace('\\\\\"', '\"').replace('\\\\n', '\\n')
-    # Now convert to actual newlines
-    cookies = cookies.replace('\\n', '\n')
-    with open('/tmp/cookies.txt', 'w') as f:
-        f.write(cookies)
-"
-        if head -1 /tmp/cookies.txt | grep -q "Netscape HTTP Cookie File"; then
-            echo "✅ Python method successful!"
-        else
-            echo "❌ Creating minimal cookies file..."
-            echo "# Netscape HTTP Cookie File" > /tmp/cookies.txt
-        fi
+        echo "❌ Creating minimal cookies file..."
+        echo "# Netscape HTTP Cookie File" > /tmp/cookies.txt
     fi
     
     export YOUTUBE_COOKIES_FILE="/tmp/cookies.txt"
