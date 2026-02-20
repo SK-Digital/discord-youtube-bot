@@ -23,9 +23,13 @@ export TEST_GUILD_ID=${TEST_GUILD_ID:-""}
 # Handle YouTube cookies if provided
 if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "🍪 Creating YouTube cookies file..."
-    echo "$YOUTUBE_COOKIES" > /tmp/cookies.txt
+    # Use printf to properly handle escape sequences
+    printf '%b\n' "$YOUTUBE_COOKIES" > /tmp/cookies.txt
     export YOUTUBE_COOKIES_FILE="/tmp/cookies.txt"
     echo "✅ YouTube cookies file created"
+    # Show first few lines to verify format
+    echo "📄 Cookies file preview:"
+    head -5 /tmp/cookies.txt | sed 's/^/   /'
 else
     echo "⚠️  No YouTube cookies provided - some videos may be restricted"
     export YOUTUBE_COOKIES_FILE=""
