@@ -43,22 +43,23 @@ if cookies:
         print('🐍 Removing outer quotes')
         cookies = cookies[1:-1]
     
-    # Fix all escape sequences
-    cookies = cookies.replace('\\\\\"', '\"')  # \\\" -> \"
-    cookies = cookies.replace('\\\\n', '\\n')   # \\n -> \n  
-    cookies = cookies.replace('\\\\t', '\\t')   # \\t -> \t
+    # Fix double escapes first: \\\" -> \" and \\n -> \n and \\t -> \t
+    cookies = cookies.replace('\\\\\"', '\"')
+    cookies = cookies.replace('\\\\n', '\n')
+    cookies = cookies.replace('\\\\t', '\t')
     
-    # Now convert to actual characters
+    # Now convert literal \n and \t to actual characters
     cookies = cookies.replace('\\n', '\n')
     cookies = cookies.replace('\\t', '\t')
     
     print(f'🐍 Final length: {len(cookies)}')
-    print(f'🐍 First 100 chars: {cookies[:100]}')
+    print(f'🐍 First 100 chars: {repr(cookies[:100])}')
     
     with open('/tmp/cookies.txt', 'w') as f:
         f.write(cookies)
     
     print('🐍 File written successfully')
+    print(f'🐍 File lines: {len(cookies.splitlines())}')
 "
     
     # Debug: Show what we actually wrote
