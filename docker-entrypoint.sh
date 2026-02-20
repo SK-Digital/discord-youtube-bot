@@ -29,20 +29,37 @@ if [ -n "$YOUTUBE_COOKIES" ]; then
     echo "🔍 First 100 chars: ${YOUTUBE_COOKIES:0:100}"
     echo "🔍 Last 10 chars: ${YOUTUBE_COOKIES: -10}"
     
-    # Remove outer quotes if present (Coolify saves variables with quotes around them)
-    if [[ "$YOUTUBE_COOKIES" == \"*\" ]]; then
-        echo "🔧 Removing outer quotes from Coolify variable..."
-        YOUTUBE_COOKIES="${YOUTUBE_COOKIES:1:-1}"
-        echo "🔍 After quote removal - length: ${#YOUTUBE_COOKIES}"
-        echo "🔍 After quote removal - first 100 chars: ${YOUTUBE_COOKIES:0:100}"
-    fi
+    # Use Python to handle all the escaping properly
+    echo "🔧 Using Python to fix escape sequences..."
+    python3 -c "
+import os
+cookies = os.environ.get('YOUTUBE_COOKIES', '')
+if cookies:
+    print(f'🐍 Python received {len(cookies)} characters')
+    print(f'🐍 First 100 chars: {cookies[:100]}')
     
-    # Now fix any remaining escape sequences: \" -> " and \n -> newline
-    echo "🔧 Converting escape sequences..."
-    fixed_cookies=$(echo "$YOUTUBE_COOKIES" | sed 's/\\"/"/g' | sed 's/\\n/\n/g')
+    # Remove outer quotes if present
+    if cookies.startswith('\"') and cookies.endswith('\"'):
+        print('🐍 Removing outer quotes')
+        cookies = cookies[1:-1]
     
-    echo "📝 Creating cookies file..."
-    echo "$fixed_cookies" > /tmp/cookies.txt
+    # Fix all escape sequences
+    cookies = cookies.replace('\\\\\"', '\"')  # \\\" -> \"
+    cookies = cookies.replace('\\\\n', '\\n')   # \\n -> \n  
+    cookies = cookies.replace('\\\\t', '\\t')   # \\t -> \t
+    
+    # Now convert to actual characters
+    cookies = cookies.replace('\\n', '\n')
+    cookies = cookies.replace('\\t', '\t')
+    
+    print(f'🐍 Final length: {len(cookies)}')
+    print(f'🐍 First 100 chars: {cookies[:100]}')
+    
+    with open('/tmp/cookies.txt', 'w') as f:
+        f.write(cookies)
+    
+    print('🐍 File written successfully')
+"
     
     # Debug: Show what we actually wrote
     echo "🔍 File created, showing first 5 lines:"
